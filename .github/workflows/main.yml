@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - 'master'
-    tags-ignore:
-      - '**'
+    tags:
+      - 'ja-v*'
     paths-ignore:
       - 'docs/**'
       - README.md
