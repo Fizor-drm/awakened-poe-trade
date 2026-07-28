@@ -2,6 +2,7 @@ import { applyIncr } from './advanced-mod-desc'
 import type { Stat, StatMatcher } from '@/assets/data'
 import type { ParsedModifier } from './advanced-mod-desc'
 import type { ParsedStat } from './stat-translations'
+import { localizedStatDisplay } from './stat-normalization'
 
 export interface StatCalculated {
   stat: Stat
@@ -109,7 +110,16 @@ export function translateStatWithRoll (
       calc.sources.some(s => s.stat.stat.ref === calc.stat.ref && s.stat.roll!.dp)
     : undefined
 
-  return { string: translation.string, negate: translation.negate || false, dp: dp }
+  return {
+    string: localizedStatDisplay(
+      translation.string,
+      calc.sources
+        .filter(source => source.stat.stat.ref === calc.stat.ref)
+        .map(source => source.stat.translation.string)
+    ),
+    negate: translation.negate || false,
+    dp: dp
+  }
 }
 
 export enum ModifierType {

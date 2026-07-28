@@ -1,5 +1,6 @@
 import fnv1a from '@sindresorhus/fnv1a'
 import type { BaseType, DropEntry, Stat, StatOrGroup, StatMatcher, TranslationDict } from './interfaces'
+import type { StatNormalization } from '@/parser/stat-normalization'
 
 export * from './interfaces'
 
@@ -19,6 +20,7 @@ export let STAT_BY_MATCH_STR: (name: string) => { matcher: StatMatcher, stat: St
 export let STAT_BY_MATCH_STR_V2: (name: string) => StatOrGroup | undefined = () => undefined
 export let STAT_BY_REF_V2: (name: string) => StatOrGroup | undefined = () => undefined
 export let STATS_ITERATOR: (includes: string, andIncludes?: string[]) => Generator<Stat> = function * () {}
+export let STAT_NORMALIZATIONS_BY_MATCH_STR: (name: string) => StatNormalization[] = () => []
 
 function dataBinarySearch (data: Uint32Array, value: number, rowOffset: number, rowSize: number) {
   let left = 0
@@ -130,7 +132,16 @@ async function loadStats (language: string) {
     if (!stats.some(stat =>
       stat.matchers.some(m => m.string === matchStr || m.advanced === matchStr))
     ) {
-      // console.log('fnv1a32 collision')
+      // Hash collisions are more likely in localized data where several
+      // translations share the same short wording. Fall back to an exact scan.
+      for (const candidate of _STATS_ITERATOR(matchStr)) {
+        const candidateStats = ('stats' in candidate) ? candidate.stats : [candidate]
+        if (candidateStats.some(stat =>
+          stat.matchers.some(m => m.string === matchStr || m.advanced === matchStr)
+        )) {
+          return candidate
+        }
+      }
       return undefined
     }
     return statOrGroup
@@ -167,6 +178,26 @@ async function loadStats (language: string) {
       }
     }
   }
+}
+
+async function loadStatNormalizations (language: string) {
+  if (language !== 'ja') {
+    STAT_NORMALIZATIONS_BY_MATCH_STR = () => []
+    return
+  }
+
+  const ndjson = await (
+    await fetch(`${import.meta.env.BASE_URL}data/ja/stat-normalization.ndjson`)
+  ).text()
+  const byMatcher = new Map<string, StatNormalization[]>()
+  for (const line of ndjson.split(/\r?\n/)) {
+    if (!line) continue
+    const normalization = JSON.parse(line) as StatNormalization
+    const candidates = byMatcher.get(normalization.localized) ?? []
+    candidates.push(normalization)
+    byMatcher.set(normalization.localized, candidates)
+  }
+  STAT_NORMALIZATIONS_BY_MATCH_STR = name => byMatcher.get(name) ?? []
 }
 
 export function pseudoStatByRef (ref: string): Stat | undefined {
@@ -219,5 +250,6 @@ export async function init (lang: string) {
 export async function loadForLang (lang: string) {
   CLIENT_STRINGS = (await import(/* @vite-ignore */`${import.meta.env.BASE_URL}data/${lang}/client_strings.js`)).default
   await loadItems(lang)
-  await loadStats(lang)
+  await loadStats((lang === 'ja') ? 'en' : lang)
+  await loadStatNormalizations(lang)
 }

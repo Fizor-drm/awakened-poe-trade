@@ -1,7 +1,12 @@
-import { CLIENT_STRINGS as _$, STAT_BY_MATCH_STR_V2 } from '@/assets/data'
+import {
+  CLIENT_STRINGS as _$,
+  STAT_BY_MATCH_STR_V2,
+  STAT_NORMALIZATIONS_BY_MATCH_STR
+} from '@/assets/data'
 import type { StatMatcher, Stat, StatGroup } from '@/assets/data'
 import type { ModifierType } from './modifiers'
 import { type ItemCategory, ARMOUR, WEAPON, HEIST_EQUIPMENT } from './meta'
+import { normalizeStatCandidates } from './stat-normalization'
 
 // This file is a little messy and scary,
 // but that's how stats translations are parsed :-D
@@ -138,85 +143,114 @@ export function tryParseTranslation (
   itemCategory: ItemCategory | undefined
 ): ParsedStat | undefined {
   for (const combination of _statPlaceholderGenerator(stat.string)) {
-    const found = findAndResolveTranslation({
-      matchStr: combination.stat,
-      modType: modType,
-      itemCategory: itemCategory,
-      roll: (combination.values.length === 1) ? combination.values[0].roll : undefined
-    })
-    if (!found || !(modType in found.stat.trade.ids)) {
-      continue
-    }
+    const normalizations = STAT_NORMALIZATIONS_BY_MATCH_STR(combination.stat)
+    const candidates = normalizations.length
+      ? normalizeStatCandidates(normalizations, combination.values)
+      : [{
+          matchStr: combination.stat,
+          values: combination.values,
+          displayMatcher: combination.stat,
+          canonicalRef: undefined
+        }]
 
-    // Modifiers must be upgraded to the new values with a Divine Orb
-    let legacyStatRolls = false
-
-    if (found.matcher.negate) {
-      for (const stat of combination.values) {
-        stat.roll *= -1
-        if (stat.bounds) {
-          stat.bounds.min *= -1
-          stat.bounds.max *= -1
-        }
-      }
-    }
-
-    if (found.stat.ref === '# uses remaining') {
-      const uses = combination.values[0]
-      uses.bounds = {
-        min: 1,
-        max: uses.bounds?.max ?? uses.roll
-      }
-    }
-
-    for (const stat of combination.values) {
-      if (!stat.bounds) continue
-
-      if (stat.bounds.min > stat.bounds.max) {
-        // some stats granted by legacy Modifiers (not legacy rolls)
-        // can have same stat translations as granted by new Modifiers
-        // but swapped translation strings for positive and negative rolls
-        stat.bounds = {
-          max: stat.bounds.min,
-          min: stat.bounds.max
-        }
-        // don't consider them as a legacy rolls
+    for (const candidate of candidates) {
+      const values = candidate.values.map(value => ({
+        ...value,
+        bounds: value.bounds && { ...value.bounds }
+      }))
+      const found = findAndResolveTranslation({
+        matchStr: candidate.matchStr,
+        modType: modType,
+        itemCategory: itemCategory,
+        roll: (values.length === 1) ? values[0].roll : undefined
+      })
+      if (
+        !found ||
+        !(modType in found.stat.trade.ids) ||
+        (candidate.canonicalRef != null && found.stat.ref !== candidate.canonicalRef)
+      ) {
+        continue
       }
 
-      if (stat.roll > stat.bounds.max) {
-        stat.bounds.max = stat.roll
-        legacyStatRolls = true
-      }
-      if (stat.roll < stat.bounds.min) {
-        stat.bounds.min = stat.roll
-        legacyStatRolls = true
-      }
-    }
+      // Modifiers must be upgraded to the new values with a Divine Orb
+      let legacyStatRolls = false
 
-    if (!combination.values.length && found.matcher.value) {
-      combination.values = [{
-        roll: found.matcher.value,
-        decimal: false,
-        bounds: {
-          min: found.matcher.value,
-          max: found.matcher.value
-        }
-      }]
-    }
-
-    return {
-      stat: found.stat,
-      translation: found.matcher,
-      roll: combination.values.length
-        ? {
-            unscalable: stat.unscalable,
-            legacy: legacyStatRolls || undefined,
-            dp: found.stat.dp || combination.values.some(stat => stat.decimal),
-            value: getRollOrMinmaxAvg(combination.values.map(stat => stat.roll)),
-            min: getRollOrMinmaxAvg(combination.values.map(stat => stat.bounds?.min ?? stat.roll)),
-            max: getRollOrMinmaxAvg(combination.values.map(stat => stat.bounds?.max ?? stat.roll))
+      if (found.matcher.negate) {
+        for (const stat of values) {
+          stat.roll *= -1
+          if (stat.bounds) {
+            stat.bounds.min *= -1
+            stat.bounds.max *= -1
           }
-        : undefined
+        }
+      }
+
+      if (found.stat.ref === '# uses remaining') {
+        const uses = values[0]
+        uses.bounds = {
+          min: 1,
+          max: uses.bounds?.max ?? uses.roll
+        }
+      }
+
+      for (const stat of values) {
+        if (!stat.bounds) continue
+
+        if (stat.bounds.min > stat.bounds.max) {
+          // some stats granted by legacy Modifiers (not legacy rolls)
+          // can have same stat translations as granted by new Modifiers
+          // but swapped translation strings for positive and negative rolls
+          stat.bounds = {
+            max: stat.bounds.min,
+            min: stat.bounds.max
+          }
+          // don't consider them as a legacy rolls
+        }
+
+        if (stat.roll > stat.bounds.max) {
+          stat.bounds.max = stat.roll
+          legacyStatRolls = true
+        }
+        if (stat.roll < stat.bounds.min) {
+          stat.bounds.min = stat.roll
+          legacyStatRolls = true
+        }
+      }
+
+      if (!values.length && found.matcher.value) {
+        values.push({
+          roll: found.matcher.value,
+          decimal: false,
+          bounds: {
+            min: found.matcher.value,
+            max: found.matcher.value
+          }
+        })
+      }
+
+      const displayTranslation: StatMatcher =
+        (candidate.displayMatcher === found.matcher.string)
+          ? found.matcher
+          : {
+              ...found.matcher,
+              string: candidate.displayMatcher,
+              advanced: undefined
+            }
+
+      return {
+        stat: found.stat,
+        translation: displayTranslation,
+        roll: values.length
+          ? {
+              unscalable: stat.unscalable,
+              legacy: legacyStatRolls || undefined,
+              dp: found.stat.dp || values.some(stat => stat.decimal),
+              value: getRollOrMinmaxAvg(values.map(stat => stat.roll)),
+              min: getRollOrMinmaxAvg(values.map(stat => stat.bounds?.min ?? stat.roll)),
+              max: getRollOrMinmaxAvg(values.map(stat => stat.bounds?.max ?? stat.roll))
+            }
+          : undefined
+      }
     }
   }
 }
