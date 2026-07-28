@@ -14,6 +14,7 @@
 import { defineComponent, PropType, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePoeninja, displayRounding } from '@/web/background/Prices'
+import { displayCurrency } from '@/web/currency-display'
 import { getDetailsId } from '../trends/getDetailsId'
 import { ParsedItem } from '@/parser'
 import { ItemFilters } from '../filters/interfaces'
@@ -39,7 +40,7 @@ export default defineComponent({
         ? { min: n * one.chaos, max: n * one.chaos, currency: 'chaos' as const }
         : autoCurrency(n * one.chaos)
 
-      return `${displayRounding(price.min)} ${price.currency}`
+      return `${displayRounding(price.min)} ${displayCurrency(price.currency)}`
     }
 
     const { t } = useI18n()

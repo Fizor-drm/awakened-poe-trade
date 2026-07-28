@@ -1,0 +1,18 @@
+{
+  "language": "日本語",
+  "settings": {
+    "language": "言語",
+    "realm": "リージョン",
+    "use_intl_site": "国際版の公式取引サイトを使用",
+    "font_size": "フォントサイズ",
+    "restore_clipboard": "クリップボードを復元",
+    "poe_log_file": "PoEログファイル",
+    "poe_cfg_file": "PoE設定ファイル",
+    "overlay_bg": "オーバーレイ背景",
+    "overlay_bg_none": "なし",
+    "overlay_bg_focus_game": "閉じたらゲームにフォーカス",
+    "show_overlay_ready": "オーバーレイ準備完了を通知",
+    "window_title": "ウィンドウタイトル"
+  },
+  "Restart required": "再起動が必要です"
+}

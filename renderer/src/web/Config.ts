@@ -93,6 +93,7 @@ export function poeWebApi () {
     case 'ru': return 'ru.pathofexile.com'
     case 'cmn-Hant': return 'pathofexile.tw'
     case 'ko': return 'poe.kakaogames.com'
+    case 'ja': return 'www.pathofexile.com'
   }
 }
 
@@ -114,7 +115,7 @@ export interface Config {
   logKeys: boolean
   accountName: string
   stashScroll: boolean
-  language: 'en' | 'ru' | 'cmn-Hant' | 'ko'
+  language: 'en' | 'ru' | 'cmn-Hant' | 'ko' | 'ja'
   realm: 'pc-ggg' | 'pc-garena'
   useIntlSite: boolean
   widgets: widget.Widget[]

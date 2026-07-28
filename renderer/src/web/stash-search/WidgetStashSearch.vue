@@ -2,7 +2,7 @@
   <Widget :config="config" move-handles="corners" :inline-edit="false">
     <div class="widget-default-style p-1 flex flex-col overflow-y-auto min-h-0" style="min-width: 5rem;">
       <div class="text-gray-100 p-1 flex items-center justify-between gap-4">
-        <span class="truncate">{{ config.wmTitle || 'Untitled' }}</span>
+        <span class="truncate">{{ config.wmTitle || '無題' }}</span>
         <ui-toggle v-if="hasHotkeys"
           v-model="config.enableHotkeys">{{ t('stash_search.enable_keys') }}</ui-toggle>
       </div>
@@ -31,7 +31,7 @@ export default {
       return [{
         wmId: 0,
         wmType: 'stash-search',
-        wmTitle: 'Map rolling',
+        wmTitle: 'マップ作成',
         wmWants: 'hide',
         wmZorder: null,
         wmFlags: ['invisible-on-blur'],
@@ -50,7 +50,7 @@ export default {
       }, {
         wmId: 0,
         wmType: 'stash-search',
-        wmTitle: 'Dump sorting',
+        wmTitle: 'ダンプ仕分け',
         wmWants: 'hide',
         wmZorder: null,
         wmFlags: ['invisible-on-blur'],

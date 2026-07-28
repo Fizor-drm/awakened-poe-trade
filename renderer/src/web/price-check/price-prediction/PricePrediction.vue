@@ -5,8 +5,8 @@
         <i class="fas fa-dna fa-spin text-gray-600"></i>
       </div>
       <div class="pl-2 text-center">
-        <div>Getting price prediction...</div>
-        <div class="text-gray-600">Powered by poeprices.info</div>
+        <div>価格予測を取得中...</div>
+        <div class="text-gray-600">poeprices.info 提供</div>
       </div>
     </div>
     <div v-else-if="price">
@@ -22,11 +22,11 @@
             <i v-if="price.confidence < 78" class="fas fa-exclamation-triangle pr-1 text-orange-400"></i>
             <span>{{ price.confidence }}{{ '\u2009' }}%</span>
           </div>
-          <div class="text-xs text-gray-500 leading-none">Confidence</div>
+          <div class="text-xs text-gray-500 leading-none">信頼度</div>
         </div>
       </div>
       <div v-if="!showContrib" class="flex justify-between items-center">
-        <button @click="showContrib = true" class="btn">Contribution to predicted price<i class="fas fa-chevron-down btn-icon ml-2"></i></button>
+        <button @click="showContrib = true" class="btn">予測価格への寄与<i class="fas fa-chevron-down btn-icon ml-2"></i></button>
         <div class="flex" v-if="!feedbackSent && (price.confidence < 83)">
           <button class="btn opacity-50 mr-1 flex items-center"
             @click="openWebsite"><i class="fas fa-external-link-alt"></i></button>
@@ -35,13 +35,13 @@
           <feedback-option :item="item" :prediction="price" @sent="feedbackSent = true" option="high" />
         </div>
         <button v-else
-          class="btn opacity-50" @click="openWebsite">by poeprices.info</button>
+          class="btn opacity-50" @click="openWebsite">poeprices.info 提供</button>
       </div>
       <table v-else>
         <thead>
           <th></th>
           <th class="text-gray-500 text-left font-normal pl-2">
-            <button @click="showContrib = false">Contribution to predicted price<i class="fas fa-chevron-up btn-icon ml-2"></i></button>
+            <button @click="showContrib = false">予測価格への寄与<i class="fas fa-chevron-up btn-icon ml-2"></i></button>
           </th>
         </thead>
         <tbody class="align-top">
@@ -53,8 +53,8 @@
       </table>
     </div>
     <ui-error-box v-else-if="error">
-      <template #name>Failed to get price prediction</template>
-      <p>Error: {{ error }}</p>
+      <template #name>価格予測の取得に失敗しました</template>
+      <p>エラー: {{ error }}</p>
     </ui-error-box>
   </div>
 </template>

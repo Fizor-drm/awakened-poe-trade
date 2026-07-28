@@ -25,7 +25,7 @@
       </i18n-t>
     </div>
     <!-- <div v-show="!gameFocused && !active">
-      <div style="right: 24px; bottom: 24px; position: absolute;" class="bg-red-500 p-2 rounded">Game window is not active</div>
+      <div style="right: 24px; bottom: 24px; position: absolute;" class="bg-red-500 p-2 rounded">ゲームウィンドウがアクティブではありません</div>
     </div> -->
   </div>
 </template>

@@ -50,7 +50,7 @@
             </tr>
             <tr v-else :key="result.id">
               <td class="px-2 whitespace-nowrap">
-                <span :class="{ 'line-through': result.priceCurrency === 'exalted' }">{{ result.priceAmount }} {{ result.priceCurrency }}</span>
+                <span :class="{ 'line-through': result.priceCurrency === 'exalted' }">{{ result.priceAmount }} {{ displayCurrency(result.priceCurrency) }}</span>
                 <span v-if="result.listedTimes > 2" class="rounded px-1 text-gray-800 bg-gray-400 ml-1 -mr-2"><span class="font-sans">×</span> {{ result.listedTimes }}</span>
                 <span v-else-if="!result.hasFee" :class="$style.stashListing">
                   <img :class="$style.stashIcon" src="/images/stash.png">
@@ -101,6 +101,7 @@ import { ParsedItem } from '@/parser'
 import { artificialSlowdown } from './artificial-slowdown'
 import OnlineFilter from './OnlineFilter.vue'
 import TradeLinks from './TradeLinks.vue'
+import { displayCurrency } from '@/web/currency-display'
 
 const slowdown = artificialSlowdown(900)
 
@@ -240,6 +241,7 @@ export default defineComponent({
 
     return {
       t,
+      displayCurrency,
       list: searchResult,
       groupedResults: computed(() => {
         if (!slowdown.isReady.value) {

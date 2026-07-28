@@ -12,7 +12,7 @@
       <span v-if="isRange" class="text-gray-600 font-sans"> ~ </span>
       <span v-if="isRange" :class="{ [$style.golden]: isValuable }">{{ maxText }}</span>
       <span v-if="!currencyText" class="font-sans" :class="{ [$style.golden]: isValuable }"> ×</span>
-      <span v-else-if="price" :class="{ [$style.golden]: isValuable }">&nbsp;{{ price.currency }}</span>
+      <span v-else-if="price" :class="{ [$style.golden]: isValuable }">&nbsp;{{ displayCurrency(price.currency) }}</span>
     </div>
     <div class="w-8 h-8 flex items-center justify-center shrink-0" v-if="!currencyText">
       <img v-if="isValuable" src="/images/divine.png" class="max-w-full max-h-full">
@@ -25,6 +25,7 @@
 import { defineComponent, computed, PropType } from 'vue'
 import { displayRounding } from '../background/Prices'
 import { ITEM_BY_REF, BaseType } from '@/assets/data'
+import { displayCurrency } from '@/web/currency-display'
 
 export default defineComponent({
   props: {
@@ -80,6 +81,7 @@ export default defineComponent({
       minText,
       maxText,
       imgSize,
+      displayCurrency,
       isRange: computed(() => { return minText.value !== maxText.value }),
       isValuable: computed(() => { return props.price?.currency === 'div' })
     }

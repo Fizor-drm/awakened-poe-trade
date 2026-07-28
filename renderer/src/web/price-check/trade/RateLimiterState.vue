@@ -1,11 +1,11 @@
 <template>
   <button :class="[$style.button, { [$style.limited]: isLimited }]"
-    @click="showRateLimitState = !showRateLimitState" v-bind="$attrs">Rate limiting</button>
+    @click="showRateLimitState = !showRateLimitState" v-bind="$attrs">レート制限</button>
   <div v-if="showRateLimitState"
     class="font-sans p-4 bg-gray-800 text-gray-400 mb-8 border border-gray-900 absolute bottom-0"
     style="border-width: 0.25rem;" v-bind="$attrs">
     <div v-for="limit in limits" :key="limit.policy">
-      <div :class="{ 'text-red-400': limit.hasQueue }">Policy: {{ limit.policy }}</div>
+      <div :class="{ 'text-red-400': limit.hasQueue }">ポリシー: {{ limit.policy }}</div>
       <div>
         <div v-for="(rule, idx) in limit.rules" :key="idx">
           <span>{{ rule.active }} / {{ rule.max }} over {{ rule.window }}s</span>

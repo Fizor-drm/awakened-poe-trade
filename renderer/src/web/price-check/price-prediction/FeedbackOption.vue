@@ -9,10 +9,10 @@
         <div>{{ text }}</div>
         <textarea v-if="option !== 'fair'"
           v-model="feedbackText"
-          placeholder="Why do you think so? (Not required)"
+          placeholder="理由を入力してください（任意）"
           rows="5" class="w-full bg-gray-700 text-gray-100 p-1"></textarea>
-        <button class="btn" type="submit">Send feedback</button>
-        <span class="ml-2">to poeprices.info</span>
+        <button class="btn" type="submit">フィードバックを送信</button>
+        <span class="ml-2">poeprices.info へ</span>
       </form>
     </template>
   </ui-popover>
@@ -46,11 +46,11 @@ export default defineComponent({
 
     const text = computed(() => {
       if (props.option === 'low') {
-        return 'Predicted price is too low.'
+        return '予測価格が低すぎます。'
       } else if (props.option === 'high') {
-        return 'Predicted price is too high.'
+        return '予測価格が高すぎます。'
       } else {
-        return 'Predicted price is fair.'
+        return '予測価格は妥当です。'
       }
     })
 

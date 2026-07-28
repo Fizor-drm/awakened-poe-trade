@@ -1,5 +1,6 @@
 import { createI18n, Composer as I18n, useI18n } from 'vue-i18n'
 import { nextTick } from 'vue'
+import { translateJapaneseUi } from './ja-ui'
 
 let _global: I18n
 
@@ -11,6 +12,7 @@ export async function init (lang: string) {
     fallbackFormat: true,
     fallbackWarn: false,
     missingWarn: false,
+    postTranslation: (message) => typeof message === 'string' && _global?.locale.value === 'ja' ? translateJapaneseUi(message) : message,
     messages: {
       // eslint-disable-next-line @stylistic/quote-props
       'en': await (await fetch(`${import.meta.env.BASE_URL}data/en/app_i18n.json`)).json()
