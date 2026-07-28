@@ -90,6 +90,14 @@ test('Japanese stats asset is canonical English data, not direct localized match
   )
 })
 
+test('ships canonical English stat indexes required by Japanese runtime', () => {
+  for (const file of ['stats-ref.index.bin', 'stats-matcher.index.bin']) {
+    const index = dataFile('en', file)
+    assert.ok(fs.existsSync(index), `missing runtime asset: ${index}`)
+    assert.ok(fs.statSync(index).size > 0, `empty runtime asset: ${index}`)
+  }
+})
+
 test('normalizes reported Japanese armour and resistance examples to English trade ids', () => {
   const cases = [
     {

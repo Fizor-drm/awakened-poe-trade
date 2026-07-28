@@ -34,11 +34,11 @@ export function normalizeStatCandidates<T extends StatValue> (
   candidates: StatNormalization[],
   values: T[]
 ): Array<{
-    matchStr: string
-    values: T[]
-    displayMatcher: string
-    canonicalRef: string
-  }> {
+  matchStr: string
+  values: T[]
+  displayMatcher: string
+  canonicalRef: string
+}> {
   return candidates
     .filter(candidate => conditionsMatch(candidate, values))
     .sort((a, b) => Number(a.source === 'client-alias') - Number(b.source === 'client-alias'))
